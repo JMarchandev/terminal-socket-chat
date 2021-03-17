@@ -14,16 +14,23 @@ const { sendMessage } = require('./lib/socket');
 
 clear();
 
-socket.on('connect', async () => {
-	const init = await initApp(socket);
-	await startingChat(init.username, init.room);
-
+const reply = async () => {
 	repl.start({
-		prompt: '',
-		eval: (cmd) => {
+		prompt: '>  ',
+		eval: (cmd, context, filename, callback) => {
+			callback(null, cmd);
 			sendMessage(cmd, socket);
 		},
+		writer: () => {
+			return '';
+		},
 	});
+};
+
+socket.on('connect', async () => {
+	const init = await initApp(socket);
+	startingChat(init.username, init.room);
+	reply();
 });
 
 socket.on('UPDATE_CHAT', (sender, message) => {
@@ -37,8 +44,6 @@ socket.on('message', (cmd, username) => {
 socket.on('disconnect', function () {
 	socket.emit('disconnect');
 });
-// const reply = (socket) => {
-	
-// };
+
 
 
